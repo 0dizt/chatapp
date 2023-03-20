@@ -5,6 +5,8 @@ import {
   ScrollView,
   StyleSheet,
   Image,
+  Dimensions,
+  TextInput,
 } from "react-native";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
@@ -21,6 +23,8 @@ import { auth, database } from "../config/firebase";
 const CustomChat = () => {
   const navigation = useNavigation();
   const [messages, setMessages] = useState([]);
+
+  const { width, height } = Dimensions.get("screen");
 
   const scrollViewRef = useRef(null);
 
@@ -58,121 +62,157 @@ const CustomChat = () => {
 
   const ChatView = ({ messages, currentUser }) => {
     return (
-      <View style={{ padding: 20 }}>
-        {messages
-          .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-          .map((message, index) => {
-            const date = new Date(message.createdAt);
-            const options = {
-              hour12: true,
-              hour: "numeric",
-              minute: "numeric",
-            };
-            const formattedTime = date.toLocaleString("en-US", options);
+      <View style={{ flex: 1 }}>
+        <ScrollView
+          ref={scrollViewRef}
+          onContentSizeChange={handleContentSizeChange}
+          contentContainerStyle={{ padding: 10 }}
+        >
+          {messages
+            .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+            .map((message, index) => {
+              const date = new Date(message.createdAt);
+              const options = {
+                hour12: true,
+                hour: "numeric",
+                minute: "numeric",
+              };
+              const formattedTime = date.toLocaleString("en-US", options);
 
-            const isSameUser = message.user._id === currentUser;
-            const isLastInGroup =
-              index === messages.length - 1 ||
-              messages[index + 1].user._id !== message.user._id;
-            const isFirstInGroup =
-              index === 0 || messages[index - 1].user._id !== message.user._id;
+              const isSameUser = message.user._id === currentUser;
+              const isLastInGroup =
+                index === messages.length - 1 ||
+                messages[index + 1].user._id !== message.user._id;
+              const isFirstInGroup =
+                index === 0 ||
+                messages[index - 1].user._id !== message.user._id;
 
-            const messageStyles = [styles.message];
-            const textStyles = [styles.messageText];
+              const messageStyles = [styles.message];
+              const textStyles = [styles.messageText];
 
-            if (isSameUser) {
-              messageStyles.push(styles.sameUser);
-            } else {
-              messageStyles.push(styles.diffUser);
-            }
+              if (isSameUser) {
+                messageStyles.push(styles.sameUser);
+              } else {
+                messageStyles.push(styles.diffUser);
+              }
 
-            if (isFirstInGroup) {
-              textStyles.push(styles.firstInGroup);
-              messageStyles.push(styles.messageGroup);
-            }
+              if (isFirstInGroup) {
+                textStyles.push(styles.firstInGroup);
+                messageStyles.push(styles.messageGroup);
+              }
 
-            if (isLastInGroup) {
-              textStyles.push(styles.lastInGroup);
-              messageStyles.push(styles.messageGroup);
-            }
+              if (isLastInGroup) {
+                textStyles.push(styles.lastInGroup);
+                messageStyles.push(styles.messageGroup);
+              }
 
-            return (
-              <View key={message._id} style={messageStyles}>
-                {!isSameUser && isLastInGroup && (
-                  <Image
+              return (
+                <View key={message._id} style={messageStyles}>
+                  {!isSameUser && isLastInGroup && (
+                    <>
+                      {/* <Image
                     source={{ uri: message.user.avatar }}
                     style={styles.avatar}
-                  />
-                )}
+                  /> */}
+                      <View
+                        style={{
+                          width: 30,
+                          height: 30,
+                          backgroundColor: "#ddd",
+                          borderRadius: 30,
+                          position: "absolute",
+                          bottom: 10,
+                        }}
+                      />
+                    </>
+                  )}
 
-                <TouchableOpacity style={[styles.messageContent]}>
-                  <View
+                  <TouchableOpacity
                     style={[
-                      textStyles,
+                      styles.messageContent,
                       {
-                        backgroundColor: isSameUser ? "#222" : "#ddd",
-                        borderTopRightRadius: !isSameUser
-                          ? 20
-                          : isSameUser && isFirstInGroup
-                          ? 20
-                          : null,
-                        borderBottomRightRadius: !isSameUser
-                          ? 20
-                          : isSameUser && isLastInGroup
-                          ? 20
-                          : null,
-                        borderTopLeftRadius:
-                          !isSameUser && !isFirstInGroup ? 0 : 20,
-                        borderBottomLeftRadius:
-                          !isSameUser && !isLastInGroup ? 0 : 20,
-                        marginVertical: 1,
-                        marginLeft:
-                          (!isSameUser && !isFirstInGroup) ||
-                          (!isSameUser && !isLastInGroup) ||
-                          !isSameUser
-                            ? 40
-                            : 0,
-                        width: "100%",
+                        maxWidth: "80%",
                       },
                     ]}
                   >
-                    <Text
-                      style={{
-                        color: isSameUser ? "#ddd" : "#222",
-                        fontSize: 14,
-                        lineHeight: 20,
-                      }}
+                    <View
+                      style={[
+                        textStyles,
+                        {
+                          backgroundColor: isSameUser ? "#222" : "#ddd",
+                          borderTopRightRadius: !isSameUser
+                            ? 20
+                            : isSameUser && isFirstInGroup
+                            ? 20
+                            : 0,
+                          borderBottomRightRadius: !isSameUser
+                            ? 20
+                            : isSameUser && isLastInGroup
+                            ? 20
+                            : 0,
+                          borderTopLeftRadius:
+                            !isSameUser && !isFirstInGroup ? 0 : 20,
+                          borderBottomLeftRadius:
+                            !isSameUser && !isLastInGroup ? 0 : 20,
+                          marginVertical: 1,
+                          marginLeft:
+                            (!isSameUser && !isFirstInGroup) ||
+                            (!isSameUser && !isLastInGroup) ||
+                            !isSameUser
+                              ? 35
+                              : 0,
+                        },
+                      ]}
                     >
-                      {message.text}
-                    </Text>
-                    <Text
-                      style={{
-                        color: isSameUser ? "#ddd" : "#222",
-                        textAlign: isSameUser ? "right" : "left",
-                        fontSize: 10,
-                        opacity: 0.5,
-                      }}
-                    >
-                      {formattedTime}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-            );
-          })}
+                      <Text
+                        style={{
+                          color: isSameUser ? "#ddd" : "#222",
+                          fontSize: 14,
+                          lineHeight: 20,
+                          // backgroundColor: "red",
+                          // alignSelf: "flex-start",
+                        }}
+                      >
+                        {message.text}
+                      </Text>
+                      <Text
+                        style={{
+                          color: isSameUser ? "#ddd" : "#222",
+                          textAlign: isSameUser ? "right" : "left",
+                          fontSize: 10,
+                          opacity: 0.5,
+                        }}
+                      >
+                        {formattedTime}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              );
+            })}
+        </ScrollView>
+        <View
+          style={{
+            backgroundColor: "#ffffff",
+            height: 90,
+            paddingHorizontal: 40,
+            paddingVertical: 10,
+          }}
+        >
+          <TextInput
+            placeholder="Type a message..."
+            style={{
+              backgroundColor: "#f2f2f2",
+              borderRadius: 20,
+              padding: 10,
+            }}
+          />
+        </View>
       </View>
     );
   };
 
-  return (
-    <ScrollView
-      style={{ flex: 1 }}
-      ref={scrollViewRef}
-      onContentSizeChange={handleContentSizeChange}
-    >
-      <ChatView messages={messages} currentUser={auth.currentUser.email} />
-    </ScrollView>
-  );
+  return <ChatView messages={messages} currentUser={auth.currentUser.email} />;
 };
 
 const styles = StyleSheet.create({
@@ -182,7 +222,7 @@ const styles = StyleSheet.create({
   },
   messageGroup: {
     flexDirection: "row",
-    alignItems: "flex-end",
+    // alignItems: "flex-end",
   },
   sameUser: {
     alignSelf: "flex-end",
@@ -195,12 +235,11 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
   messageContent: {
-    maxWidth: "80%",
+    // maxWidth: "90%",
   },
   messageText: {
-    backgroundColor: "#f4f4f4",
+    backgroundColor: "#f0f",
     padding: 10,
-    backgroundColor: "red",
   },
   avatar: {
     width: 30,
@@ -211,7 +250,6 @@ const styles = StyleSheet.create({
   },
   firstInGroup: {},
   lastInGroup: {
-    marginLeft: 10,
     marginBottom: 10,
   },
 });

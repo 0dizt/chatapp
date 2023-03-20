@@ -6,6 +6,7 @@ import Chat from "./screens/Chat";
 import Login from "./screens/Login";
 import Signup from "./screens/Signup";
 import Home from "./screens/Home";
+import CustomChat from "./screens/CustomChat";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./config/firebase";
 
@@ -26,6 +27,7 @@ function ChatStack() {
     <Stack.Navigator defaultScreenOptions={Home}>
       <Stack.Screen name="Home" component={Home} />
       <Stack.Screen name="Chat" component={Chat} />
+      <Stack.Screen name="CustomChat" component={CustomChat} />
     </Stack.Navigator>
   );
 }

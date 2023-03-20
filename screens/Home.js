@@ -20,14 +20,16 @@ const Home = () => {
         />
       ),
       headerRight: () => (
-        <Image
-          source={{ uri: catImageUrl }}
-          style={{
-            width: 40,
-            height: 40,
-            marginRight: 15,
-          }}
-        />
+        <TouchableOpacity onPress={() => navigation.navigate("CustomChat")}>
+          <Image
+            source={{ uri: catImageUrl }}
+            style={{
+              width: 40,
+              height: 40,
+              marginRight: 15,
+            }}
+          />
+        </TouchableOpacity>
       ),
     });
   }, [navigation]);

@@ -4,7 +4,7 @@ import React, {
   useLayoutEffect,
   useCallback,
 } from "react";
-import { TouchableOpacity, Text } from "react-native";
+import { TouchableOpacity, Text, View, SafeAreaView } from "react-native";
 import { GiftedChat } from "react-native-gifted-chat";
 import {
   collection,
@@ -21,6 +21,7 @@ import colors from "../colors";
 
 export default function Chat() {
   const [messages, setMessages] = useState([]);
+  const [isTyping, setIsTyping] = useState(true);
   const navigation = useNavigation();
 
   const onSignOut = () => {
@@ -72,17 +73,21 @@ export default function Chat() {
       user,
     });
   }, []);
+
   return (
-    <GiftedChat
-      messages={messages}
-      onSend={(messages) => onSend(messages)}
-      user={{
-        _id: auth?.currentUser?.email,
-        avatar: "https://i.pravatar.cc/300",
-      }}
-      messagesContainerStyle={{
-        backgroundColor: "#fff",
-      }}
-    />
+    <SafeAreaView style={{ flex: 1 }}>
+      <GiftedChat
+        messages={messages}
+        onSend={(messages) => onSend(messages)}
+        user={{
+          _id: auth?.currentUser?.email,
+          avatar: "https://i.pravatar.cc/300",
+        }}
+        messagesContainerStyle={{
+          backgroundColor: "#fff",
+        }}
+        isTyping={isTyping}
+      />
+    </SafeAreaView>
   );
 }
